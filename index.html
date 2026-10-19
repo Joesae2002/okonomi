@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Økonomi</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1f6feb">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">Laster…</main>
+<script>
+// Viser feil direkte på siden, slik at den ikke bare står på «Laster…»
+(function () {
+  function show(msg) { var a = document.getElementById('app'); if (a && /^Laster/.test(a.textContent)) a.innerHTML = '<h1>Noe gikk galt</h1><div class="card" style="word-break:break-word">' + msg + '</div><p class="mut">Ta skjermdump av dette og send det videre.</p>'; }
+  window.addEventListener('error', function (e) { var t = e.target; show(t && t.src ? 'Kunne ikke laste filen: ' + t.src : 'Feil: ' + (e.message || e)); }, true);
+  window.addEventListener('unhandledrejection', function (e) { show('Feil: ' + (e.reason && e.reason.message || e.reason)); });
+  setTimeout(function () { show('Appen startet ikke innen 8 sekunder. Versjon: ' + (window.__build || 'ukjent – app.js ble ikke kjørt')); }, 8000);
+})();
+</script>
+<script src="vendor/supabase.js"></script>
+<nav id="nav" hidden></nav>
+<script type="module" src="app.js"></script>
+</body>
+</html>

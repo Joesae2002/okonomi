@@ -1,0 +1,5 @@
+project_id = "okonomi"
+
+# Funksjonen sjekker innloggingen selv (brukertoken eller x-cron-secret), så den innebygde JWT-sjekken skrus av.
+[functions.notify]
+verify_jwt = false
