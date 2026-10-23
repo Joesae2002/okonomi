@@ -158,7 +158,10 @@ alter table alerts_sent enable row level security;  -- ingen policies = ingen ti
 create policy "se egen husholdning" on households for select using (is_member(id));
 create policy "se medlemmer" on members for select using (is_member(household_id));
 create policy "oppdater eget navn" on members for update using (user_id = auth.uid());
-create policy "tx" on transactions for all using (is_member(household_id)) with check (is_member(household_id) and owner_id = auth.uid());
+create policy "tx les"   on transactions for select using (is_member(household_id));
+create policy "tx ny"    on transactions for insert with check (is_member(household_id) and owner_id = auth.uid());
+create policy "tx endre" on transactions for update using (is_member(household_id)) with check (is_member(household_id));
+create policy "tx slett" on transactions for delete using (is_member(household_id));
 create policy "budsjett" on budgets for all using (is_member(household_id)) with check (is_member(household_id));
 create policy "skatt" on tax_inputs for all using (is_member(household_id)) with check (is_member(household_id));
 create policy "maal" on goals for all using (is_member(household_id)) with check (is_member(household_id));

@@ -1,5 +1,5 @@
 const { createClient } = window.supabase; // vendor/supabase.js (lastes i index.html)
-window.__build = '2026-10-23-b';
+window.__build = '2026-10-23-c';
 import { SUPABASE_URL, SUPABASE_ANON_KEY, VAPID_PUBLIC_KEY } from './config.js';
 import { parseCSV, parseRows } from './lib/parse.js';
 import { CATEGORIES, compileRules, categorize, ruleKey } from './lib/categorize.js';
@@ -16,6 +16,7 @@ import { budgetStatus } from './lib/dynbudget.js';
 import { fixedInfo, itemPayments, suggestFixed, categoryPlan } from './lib/fixed.js';
 import { domainFor, logoUrl, initials, avatarHue } from './lib/logos.js';
 import { plansForMonth, plannedIncome, plannedSeries, monthlyAmount, periodText, PER_MONTH } from './lib/income.js';
+import { storeBreakdown } from './lib/stores.js';
 import { avgNet, projectGoal } from './lib/goals.js';
 import { STUDENT_PAR, SOURCES, presetTotal } from './lib/presets.js';
 
@@ -28,7 +29,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const S = { user: null, hh: null, members: [], txs: [], budgets: {}, budgetMeta: {}, rules: [], seasonalRaw: [], customCats: [], accounts: [], account: 'all', year: Number(today().slice(0, 4)), taxInputs: [], goals: [], marks: [], plans: [], fixed: [], openFixed: new Set(), openCats: new Set(), hiddenSubs: new Set(), chartA: null, chartB: null, chartCat: 'all', chartMetric: 'spent', view: 'home', month: monthOf(today()), q: '', msg: '' };
 const cats = () => [...CATEGORIES, ...S.customCats.filter(c => !CATEGORIES.includes(c))];
 const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* privat modus */ } } };
-S.logos = store.get('okonomi.logos') !== '0'; S.fixedKind = store.get('okonomi.fixedKind') === 'giver' ? 'giver' : 'utgift';
+S.storePeriod = ['3', 'year'].includes(store.get('okonomi.storePeriod')) ? store.get('okonomi.storePeriod') : 'month'; S.logos = store.get('okonomi.logos') !== '0'; S.fixedKind = store.get('okonomi.fixedKind') === 'giver' ? 'giver' : 'utgift';
 const applyTheme = () => {   // «Ellinor-modus» (lys, pastell rosa) lagres per enhet
   const on = store.get('okonomi.theme') === 'ellinor'; if (on) document.documentElement.dataset.theme = 'ellinor'; else delete document.documentElement.dataset.theme;
   document.querySelector('meta[name=theme-color]')?.setAttribute('content', on ? '#fdf0f4' : '#1f6feb');
@@ -137,12 +138,23 @@ function ringSvg(pct) {
   return `<svg class="ring" viewBox="0 0 90 90" role="img" aria-label="${Math.round(pct * 100)} prosent brukt"><circle cx="45" cy="45" r="${r}" class="ring-t"/><circle cx="45" cy="45" r="${r}" class="ring-p" stroke-dasharray="${(p * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 45 45)"/><text x="45" y="50" text-anchor="middle">${Math.round(pct * 100)} %</text></svg>`;
 }
 const shortDate = d => `${Number(d.slice(8))}. ${monthShort(d)}`;
+// Mat: hvor mye som er brukt i hver butikk (din andel)
+function storeCard(cat) {
+  if (cat !== 'Mat') return '';
+  const pe = S.storePeriod, bd = storeBreakdown(visible(), cat, S.month, pe), lbl = { month: monthLabel(S.month), 3: 'siste 3 måneder', year: `hittil i ${S.month.slice(0, 4)}` }[pe];
+  if (!bd.rows.length) return '';
+  const max = bd.rows[0].sum || 1;
+  return `<div class="cb-h"><b>Per butikk</b><span>${kr(bd.total)}</span></div>
+    <div class="seg" role="group" aria-label="Periode">${[['month', 'Måned'], ['3', '3 mnd'], ['year', 'I år']].map(([k, l]) => `<button type="button" class="${pe === k ? 'on' : ''}" data-sp="${k}">${l}</button>`).join('')}</div>
+    <small class="mut">${esc(lbl)}</small>
+    ${bd.rows.map(r => `<div class="srow"><div class="row"><span>${esc(r.name)}<small>${r.count} ${r.count === 1 ? 'kjøp' : 'kjøp'} · ${Math.round(r.pct * 100)} %</small></span><span class="amt">${kr(r.sum)}</span></div><div class="sbar"><i style="width:${(r.sum / max * 100).toFixed(1)}%"></i></div></div>`).join('')}`;
+}
 // Hva som er betalt og hva som gjenstår i en kategori denne måneden
 function catBody(cat, seasonalItems) {
   const pl = categoryPlan({ cat, month: S.month, today: today(), txs: visible(), items: S.fixed, seasonal: seasonalItems }), cur = monthOf(today());
   const remaining = pl.remaining.length ? pl.remaining.map(r => `<div class="row"><span>${esc(r.name)}<small>${r.kind === 'sesong' ? 'sesongutgift denne måneden' : r.late ? `⏳ ventet ca. den ${r.dueDay}.` : `ca. den ${r.dueDay}.`}</small></span><span class="amt mut">${r.amount > 0 ? kr(r.amount) : '–'}</span></div>`).join('')
     : pl.hasFixed ? '<div class="mut">✅ Alle faste utgifter i kategorien er betalt.</div>' : '<div class="mut">Ingen faste utgifter er lagt inn for denne kategorien. <button class="sm" data-go="subs">Legg til under Faste</button></div>';
-  return `<div class="cb-h"><b>Betalt</b><span>${kr(pl.paid)} · ${pl.paidTx.length} ${pl.paidTx.length === 1 ? 'post' : 'poster'}</span></div>
+  return `${storeCard(cat)}<div class="cb-h"><b>Betalt</b><span>${kr(pl.paid)} · ${pl.paidTx.length} ${pl.paidTx.length === 1 ? 'post' : 'poster'}</span></div>
     ${pl.paidTx.map(t => `<div class="row"><span>${shortDate(t.date)}<small>${esc(t.text)}${t.share < 1 ? ` · din andel ${shareText(t.share)} av ${kr(-t.amount)}` : ''}${t.comment ? ' · 💬 ' + esc(t.comment) : ''}</small></span><span class="flex" style="flex-wrap:nowrap"><span class="amt">${kr(-eff(t))}</span><button class="sm" data-e="${t.id}" aria-label="Rediger">✎</button></span></div>`).join('') || '<div class="mut">Ingen poster denne måneden.</div>'}
     ${S.month === cur ? `<div class="cb-h"><b>Gjenstår</b><span>${pl.remaining.length ? kr(pl.remainingSum) : ''}</span></div>${remaining}` : ''}`;
 }
@@ -216,6 +228,7 @@ function homeView() {
   bindMonth(); bindAccount();
   document.querySelectorAll('[data-e]').forEach(b => b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); editTx(S.txs.find(x => x.id === b.dataset.e)); });
   bindUploads();
+  document.querySelectorAll('[data-sp]').forEach(b => b.onclick = ev => { ev.preventDefault(); S.storePeriod = b.dataset.sp; store.set('okonomi.storePeriod', S.storePeriod); render(); });
 }
 
 const monthName = m => new Date(m + '-01').toLocaleDateString('nb-NO', { month: 'long' });

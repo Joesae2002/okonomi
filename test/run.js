@@ -499,3 +499,14 @@ console.log('opplastingspåminnelse OK');
   const r = compileRules([]); assert.equal(categorize(tx[2], r).kind, 'internal', 'Fra Bufferspar er intern overføring'); assert.equal(categorize({ text: 'Avtalegiro til MOVA AS', amount: -399 }, r).category, 'Abonnement');
   console.log('fil uten overskrift OK');
 }
+{
+  const { storeOf, storeBreakdown } = await import('../lib/stores.js');
+  assert.equal(storeOf('REMA 1000 NATTLAND Notanr 74463'), 'Rema 1000'); assert.equal(storeOf('AER*MENY SLETTEN'), 'Meny'); assert.equal(storeOf('SPAR HAGA'), 'Spar'); assert.equal(storeOf('Coop Extra Lagunen'), 'Coop'); assert.equal(storeOf('OBS BYGG'), 'Coop');
+  assert.equal(storeOf('Vipps: Oda'), 'Oda'); assert.equal(storeOf('KIOSK ABC 123 Notanr 5'), 'Kiosk abc');
+  const m = (date, text, amount, extra = {}) => ({ date, text, amount, category: 'Mat', kind: 'normal', share: 1, ...extra });
+  const txs = [m('2026-10-04', 'REMA 1000 A', -700), m('2026-10-12', 'REMA 1000 B', -300), m('2026-10-09', 'MENY X', -500, { share: 0.5 }), m('2026-09-10', 'KIWI', -200), m('2026-08-01', 'KIWI', -100), m('2026-10-05', 'REMA', -50, { kind: 'ignored' }), m('2026-10-06', 'REMA', 90)];
+  const a = storeBreakdown(txs, 'Mat', '2026-10'); assert.deepEqual(a.rows.map(r => [r.name, r.sum, r.count]), [['Rema 1000', 1000, 2], ['Meny', 250, 1]]); assert.equal(a.total, 1250);
+  const b = storeBreakdown(txs, 'Mat', '2026-10', '3'); assert.deepEqual(b.rows.map(r => r.name), ['Rema 1000', 'Kiwi', 'Meny']); assert.equal(b.rows[1].sum, 300);
+  assert.equal(storeBreakdown(txs, 'Mat', '2026-10', 'year').rows.find(r => r.name === 'Kiwi').sum, 300);
+  console.log('butikker OK');
+}

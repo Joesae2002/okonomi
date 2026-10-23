@@ -89,3 +89,4 @@ details.fx { border-bottom:1px solid var(--line); } details.fx:last-child { bord
 :root[data-theme="ellinor"] { --bg:#fdf0f4; --card:#fff; --fg:#3b2230; --fg2:#6a4658; --mut:#876373; --pri:#c2487c; --accent:#d9609a; --ok:#2e8b68; --warn:#8a5a00; --bad:#c62f4a; --line:#f4d8e2; --grid:#f8e4ec; --axis:#e6bfcf; --gray:#d9c0cb; --gray-h:#c3a3b2; --track:#fadbe7; --hero:#f9cfe0; --hero-fg:#47182f; --hero-mut:#7a4560; --hero-line:rgba(71,24,47,.15); --ring-t:rgba(71,24,47,.14); --ring-p:#c2487c; --st-warn:#f2b24a; --st-bad:#d9456a; color-scheme:light; }
 :root[data-theme="ellinor"] body { background-image:radial-gradient(900px 420px at 100% -10%, #fbdbe8 0%, transparent 60%); background-repeat:no-repeat; }
 .tile.wide.on { outline:2px solid var(--accent); }
+.srow { margin:2px 0 6px; } .sbar { height:5px; border-radius:3px; background:var(--track); margin-top:-2px; overflow:hidden; } .sbar i { display:block; height:100%; border-radius:3px; background:var(--accent); }
