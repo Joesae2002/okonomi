@@ -1,5 +1,5 @@
 const { createClient } = window.supabase; // vendor/supabase.js (lastes i index.html)
-window.__build = '2026-10-20-n';
+window.__build = '2026-10-23-a';
 import { SUPABASE_URL, SUPABASE_ANON_KEY, VAPID_PUBLIC_KEY } from './config.js';
 import { parseCSV, parseRows } from './lib/parse.js';
 import { CATEGORIES, compileRules, categorize, ruleKey } from './lib/categorize.js';

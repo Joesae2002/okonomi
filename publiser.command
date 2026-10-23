@@ -17,7 +17,9 @@ if [ -n "$ZIP" ]; then
   mkdir -p "$APP"
   rm -rf "$APP/lib" "$APP/vendor"            # fjerner utdaterte filer; resten overskrives (.git berøres ikke)
   [ -f "$APP/okonomi/index.html" ] && rm -rf "$APP/okonomi"
+  [ -f "$APP/config.js" ] && cp "$APP/config.js" "$TMP/config.keep"   # dine egne nøkler (Supabase, VAPID) skal ikke overskrives
   cp -R "$SRC"/. "$APP"/
+  [ -f "$TMP/config.keep" ] && cp "$TMP/config.keep" "$APP/config.js"
   rm -rf "$TMP"
   mv "$ZIP" "${ZIP%.zip}.installert"
 else

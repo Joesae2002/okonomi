@@ -492,3 +492,10 @@ console.log('opplastingspåminnelse OK');
   const lb = m => m; assert.equal(periodText(plans[0], lb), '2026-01 – 2027-03'); assert.equal(periodText(plans[2], lb), 'fra 2026-01, løpende'); assert.equal(periodText({ end_month: '2026-11' }, lb), 'til og med 2026-11');
   console.log('planlagt inntekt OK');
 }
+{
+  const csv = '23.10.2026;Vipps*Ryde Technology AS/Oslo/;-30,90;NOK\n21.10.2026;Q*LYKO.NO Notanr 74541096294106583922710;-1.572,00;NOK\n21.10.2026;Fra Bufferspar;1.000,00;NOK\n05.10.2026;" CANVA* I05023-14807410";-200,00;NOK\n';
+  const tx = parseRows(parseCSV(csv), 'nidaros'); assert.equal(tx.length, 4, 'fil uten overskrift: dato;tekst;beløp;valuta');
+  assert.equal(tx[1].amount, -1572); assert.equal(tx[1].text, 'Q*LYKO.NO'); assert.equal(tx[2].amount, 1000); assert.equal(tx[3].text, 'CANVA* I05023-14807410');
+  const r = compileRules([]); assert.equal(categorize(tx[2], r).kind, 'internal', 'Fra Bufferspar er intern overføring'); assert.equal(categorize({ text: 'Avtalegiro til MOVA AS', amount: -399 }, r).category, 'Abonnement');
+  console.log('fil uten overskrift OK');
+}
