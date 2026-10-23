@@ -31,9 +31,9 @@ button.back { border:0; background:none; padding:4px 0 8px; color:var(--pri); fo
 .hero { background:var(--hero); color:var(--hero-fg); border-radius:24px; padding:20px; margin:0 0 12px; }
 .hero-top { display:flex; justify-content:space-between; align-items:center; gap:12px; } .hero-l { color:var(--hero-mut); font-size:.95rem; }
 .hero-big { font-size:2.6rem; font-weight:700; line-height:1.1; letter-spacing:-.02em; margin:4px 0; } .hero-s { color:var(--hero-mut); font-size:.9rem; }
-.hero-row { display:flex; justify-content:space-between; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,.18); } .hero-row span { display:block; color:var(--hero-mut); font-size:.78rem; } .hero-row b { font-size:1.05rem; font-weight:600; }
+.hero-row { display:flex; justify-content:space-between; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid var(--hero-line,rgba(255,255,255,.18)); } .hero-row span { display:block; color:var(--hero-mut); font-size:.78rem; } .hero-row b { font-size:1.05rem; font-weight:600; }
 .hero-row.two > div:last-child { text-align:right; }
-.ring { width:92px; height:92px; flex:none; } .ring circle { fill:none; stroke-width:9; } .ring-t { stroke:rgba(255,255,255,.2); } .ring-p { stroke:#fff; stroke-linecap:round; } .ring text { fill:#fff; font-size:17px; font-weight:700; }
+.ring { width:92px; height:92px; flex:none; } .ring circle { fill:none; stroke-width:9; } .ring-t { stroke:var(--ring-t,rgba(255,255,255,.2)); } .ring-p { stroke:var(--ring-p,#fff); stroke-linecap:round; } .ring text { fill:var(--hero-fg,#fff); font-size:17px; font-weight:700; }
 .ico { display:inline-grid; place-items:center; width:40px; height:40px; border-radius:50%; background:var(--track); font-size:1.15rem; flex:none; } .ico.sm { width:26px; height:26px; font-size:.85rem; vertical-align:middle; }
 .bcard { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:14px 16px; margin-bottom:10px; }
 .bc-top { display:flex; align-items:center; gap:12px; } .bc-name { flex:1; min-width:0; } .bc-name small, .bc-amt small { display:block; color:var(--mut); font-size:.82rem; } .bc-amt { text-align:right; white-space:nowrap; } .bc-note { display:block; margin-top:6px; }
@@ -84,3 +84,8 @@ details.fx { border-bottom:1px solid var(--line); } details.fx:last-child { bord
 #esi { width:100%; }
 .card.upl { border-color:var(--st-warn); } .card.upl.done { border-color:var(--accent); } .card.upl > b { display:block; margin-bottom:4px; } button.chipbtn { border-radius:99px; } button.chipbtn.ok { border-color:var(--accent); } button.chipbtn:disabled { opacity:1; cursor:default; }
 .danger{color:var(--bad,#c0392b)}
+
+/* Ellinor-modus: lys, pastell rosa. Gjelder uansett om telefonen står i mørk modus. */
+:root[data-theme="ellinor"] { --bg:#fdf0f4; --card:#fff; --fg:#3b2230; --fg2:#6a4658; --mut:#876373; --pri:#c2487c; --accent:#d9609a; --ok:#2e8b68; --warn:#8a5a00; --bad:#c62f4a; --line:#f4d8e2; --grid:#f8e4ec; --axis:#e6bfcf; --gray:#d9c0cb; --gray-h:#c3a3b2; --track:#fadbe7; --hero:#f9cfe0; --hero-fg:#47182f; --hero-mut:#7a4560; --hero-line:rgba(71,24,47,.15); --ring-t:rgba(71,24,47,.14); --ring-p:#c2487c; --st-warn:#f2b24a; --st-bad:#d9456a; color-scheme:light; }
+:root[data-theme="ellinor"] body { background-image:radial-gradient(900px 420px at 100% -10%, #fbdbe8 0%, transparent 60%); background-repeat:no-repeat; }
+.tile.wide.on { outline:2px solid var(--accent); }

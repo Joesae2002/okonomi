@@ -1,5 +1,5 @@
 const { createClient } = window.supabase; // vendor/supabase.js (lastes i index.html)
-window.__build = '2026-10-23-a';
+window.__build = '2026-10-23-b';
 import { SUPABASE_URL, SUPABASE_ANON_KEY, VAPID_PUBLIC_KEY } from './config.js';
 import { parseCSV, parseRows } from './lib/parse.js';
 import { CATEGORIES, compileRules, categorize, ruleKey } from './lib/categorize.js';
@@ -29,6 +29,11 @@ const S = { user: null, hh: null, members: [], txs: [], budgets: {}, budgetMeta:
 const cats = () => [...CATEGORIES, ...S.customCats.filter(c => !CATEGORIES.includes(c))];
 const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* privat modus */ } } };
 S.logos = store.get('okonomi.logos') !== '0'; S.fixedKind = store.get('okonomi.fixedKind') === 'giver' ? 'giver' : 'utgift';
+const applyTheme = () => {   // «Ellinor-modus» (lys, pastell rosa) lagres per enhet
+  const on = store.get('okonomi.theme') === 'ellinor'; if (on) document.documentElement.dataset.theme = 'ellinor'; else delete document.documentElement.dataset.theme;
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', on ? '#fdf0f4' : '#1f6feb');
+};
+applyTheme();
 const accName = id => S.accounts.find(a => a.id === id)?.name || '';
 const visible = () => S.account === 'all' ? S.txs : S.txs.filter(t => t.account_id === S.account);
 const accountPicker = () => `<select id="acc" aria-label="Velg konto"><option value="all">Alle kontoer (totalt)</option>${S.accounts.map(a => `<option value="${a.id}" ${S.account === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>`;
@@ -778,7 +783,9 @@ function moreHub() {
   const unc = S.txs.filter(t => t.status === 'uncertain').length;
   const tiles = [['sort', '🔀', 'Sorter', unc ? `${unc} venter` : 'Alt sortert'], ['lonn', '💼', 'Lønn og skatt', 'Planlagt inntekt, skatt'], ['reimb', '↩️', 'Utlegg og delte', 'Til gode fra andre'], ['goals', '🎯', 'Sparemål', `${S.goals.length} mål`], ['settings', '⚙️', 'Innstillinger', 'Import, budsjett, kontoer']];
   app(`<h1>Mer</h1><div class="tiles">${tiles.map(([v, ic, t, sub]) => `<button class="tile" data-go="${v}"><span class="ico">${ic}</span><b>${t}</b><small>${sub}</small></button>`).join('')}</div>
+  <button class="tile wide ${store.get('okonomi.theme') === 'ellinor' ? 'on' : ''}" id="theme">🌸 Ellinor-modus: ${store.get('okonomi.theme') === 'ellinor' ? 'på (trykk for vanlig)' : 'av'}</button>
   <button class="tile wide" id="out2">Logg ut</button>`);
+  $('#theme').onclick = () => { store.set('okonomi.theme', store.get('okonomi.theme') === 'ellinor' ? '' : 'ellinor'); applyTheme(); render(); };
   $('#out2').onclick = () => sb.auth.signOut();
 }
 
